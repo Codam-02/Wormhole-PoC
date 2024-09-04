@@ -1,5 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
+import { Web3Auth } from "@web3auth/modal";
+import { CHAIN_NAMESPACES } from "@web3auth/base";
 
 function App() {
   return (
