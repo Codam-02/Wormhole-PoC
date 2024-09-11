@@ -3,152 +3,23 @@ import './App.css';
 import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { SolanaWallet, SolanaPrivateKeyProvider } from "@web3auth/solana-provider";
-import WormholeConnect, {WormholeConnectTheme} from '@wormhole-foundation/wormhole-connect';
+import WormholeConnect, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 
 const clientId = "BGdt3Ny7JC8-pWutbt9c-FD9XeLhi3tcEaQ2T5BFm6stueZ0BhhWI3GsiqbsIj7xuI4xuoJN6DOzgHUYiolh8Ss";
-/*
-const customTheme: WormholeConnectTheme = {
-  mode: 'dark',
-  primary: {
-    50: "",
-    100: "",
-    200: "",
-    300: "",
-    400: "",
-    500: "",
-    600: "",
-    700: "",
-    800: "",
-    900: "",
-    A100: "",
-    A200: "",
-    A400: "",
-    A700: ""
-  },
-  secondary: {
-    50: "",
-    100: "",
-    200: "",
-    300: "",
-    400: "",
-    500: "",
-    600: "",
-    700: "",
-    800: "",
-    900: "",
-    A100: "",
-    A200: "",
-    A400: "",
-    A700: ""
-  },
-  divider: "",
-  background: {
-    default: ""
-  },
-  text: {
-    primary: "",
-    secondary: ""
-  },
-  error: {
-    50: "",
-    100: "",
-    200: "",
-    300: "",
-    400: "",
-    500: "",
-    600: "",
-    700: "",
-    800: "",
-    900: "",
-    A100: "",
-    A200: "",
-    A400: "",
-    A700: ""
-  },
-  info: {
-    50: "",
-    100: "",
-    200: "",
-    300: "",
-    400: "",
-    500: "",
-    600: "",
-    700: "",
-    800: "",
-    900: "",
-    A100: "",
-    A200: "",
-    A400: "",
-    A700: ""
-  },
-  success: {
-    50: "",
-    100: "",
-    200: "",
-    300: "",
-    400: "",
-    500: "",
-    600: "",
-    700: "",
-    800: "",
-    900: "",
-    A100: "",
-    A200: "",
-    A400: "",
-    A700: ""
-  },
-  warning: {
-    50: "",
-    100: "",
-    200: "",
-    300: "",
-    400: "",
-    500: "",
-    600: "",
-    700: "",
-    800: "",
-    900: "",
-    A100: "",
-    A200: "",
-    A400: "",
-    A700: ""
-  },
-  button: {
-    primary: "",
-    primaryText: "",
-    disabled: "",
-    disabledText: "",
-    action: "",
-    actionText: "",
-    hover: ""
-  },
-  options: {
-    hover: "",
-    select: ""
-  },
-  card: {
-    background: "",
-    elevation: "",
-    secondary: ""
-  },
-  popover: {
-    background: "",
-    elevation: "",
-    secondary: ""
-  },
-  modal: {
-    background: ""
-  },
-  font: {
-    primary: "",
-    header: ""
-  },
-  logo: ""
-}
-*/
+
+const config: WormholeConnectConfig = {
+  env: "testnet",
+  networks: ["sepolia", "solana"],
+  tokens: ["USDCsepolia", "USDCsol"],
+  rpcs: {
+    sepolia: "https://sepolia.infura.io/v3/060fcd8bc2ae459c99523251e06536b3",
+    solana: "https://solana-devnet.gateway.tatum.io/",
+  }
+};
 
 function App() {
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
+  const [provider, setProvider] = useState<IProvider | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
 
   useEffect(() => {
@@ -156,9 +27,9 @@ function App() {
       try {
         const chainConfig = {
           chainNamespace: CHAIN_NAMESPACES.SOLANA,
-          chainId: "0x2",
-          rpcTarget: "https://api.testnet.solana.com",
-          displayName: "Solana Testnet",
+          chainId: "0x3",
+          rpcTarget: "https://api.devnet.solana.com",
+          displayName: "Solana Devnet",
           blockExplorerUrl: "https://explorer.solana.com",
           ticker: "SOL",
           tickerName: "Solana",
@@ -180,12 +51,12 @@ function App() {
         let typedProvider: IProvider | undefined;
         if (provider) {
           typedProvider = provider;
-        } else {
+        }
+        else {
           console.error('Failed to connect. Provider is null.');
           return;
-        }
+        } 
         const solanaProvider = new SolanaWallet(typedProvider);
-
         const userAddress = await solanaProvider.requestAccounts();
         setWalletAddress(userAddress[0]);
       } catch (error) {
@@ -200,8 +71,8 @@ function App() {
     <div className="container">
       <div className="box">
         {walletAddress ? (
-          <div>
-            <WormholeConnect /*theme={customTheme}*/ />
+          <div style={{overflow: 'hidden' }}>
+            <WormholeConnect config={config}/>
           </div>
         ) : (
           <p>Loading...</p>
