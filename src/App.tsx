@@ -21,6 +21,9 @@ function App() {
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
   const [provider, setProvider] = useState<IProvider | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
+  const [solBalance, setSolBalance] = useState(0);
+  const [usdcBalance, setUsdcBalance] = useState(0);
+  const [showWormhole, setShowWormhole] = useState(false);
 
   useEffect(() => {
     const initWeb3Auth = async () => {
@@ -55,10 +58,22 @@ function App() {
         else {
           console.error('Failed to connect. Provider is null.');
           return;
-        } 
+        }
+        
         const solanaProvider = new SolanaWallet(typedProvider);
         const userAddress = await solanaProvider.requestAccounts();
         setWalletAddress(userAddress[0]);
+
+        const solBalance = 666;
+        // -/-/-/-/-/-/-/-/-/-/-/
+        setSolBalance(solBalance);
+        // -/-/-/-/-/-/-/-/-/-/-/
+
+        const usdcBalance = 999;
+        // -/-/-/-/-/-/-/-/-/-/-/
+        setUsdcBalance(usdcBalance);
+        // -/-/-/-/-/-/-/-/-/-/-/
+
       } catch (error) {
         console.error("Error initializing Web3Auth:", error);
       }
@@ -69,11 +84,27 @@ function App() {
 
   return (
     <div className="container">
-      <div className="box">
+      <header className="header">
+        <h1>My Crypto App</h1>
+      </header>
+      <div className="content">
         {walletAddress ? (
-          <div style={{overflow: 'hidden' }}>
-            <WormholeConnect config={config}/>
-          </div>
+          <>
+            <div className="wallet-info">
+              <h3>Welcome!</h3>
+              <p><strong>Address:</strong> {walletAddress}</p>
+              <p><strong>SOL Balance:</strong> {solBalance} SOL</p>
+              <p><strong>USDC Balance:</strong> {usdcBalance} USDC</p>
+              <button onClick={() => setShowWormhole(true)} className="button">
+                Deposit from Ethereum
+              </button>
+            </div>
+            {showWormhole && (
+              <div className="wormhole-container">
+                <WormholeConnect config={config} />
+              </div>
+            )}
+          </>
         ) : (
           <p>Loading...</p>
         )}
