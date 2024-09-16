@@ -31,9 +31,9 @@
   "homepage": "https://Codam-02.github.io/Wormhole-PoC",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "react-app-rewired --max-old-space-size=4096 gh-pages -d build",
     "start": "react-app-rewired --max-old-space-size=4096 start",
-    "build": "react-app-rewired build",
+    "build": "react-app-rewired --max-old-space-size=4096 build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
