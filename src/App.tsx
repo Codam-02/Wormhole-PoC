@@ -7,7 +7,7 @@ import WormholeConnect, { WormholeConnectConfig } from '@wormhole-foundation/wor
 import { Connection, PublicKey } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
-const clientId = "BGdt3Ny7JC8-pWutbt9c-FD9XeLhi3tcEaQ2T5BFm6stueZ0BhhWI3GsiqbsIj7xuI4xuoJN6DOzgHUYiolh8Ss";
+const clientId = "BByuYlm1rrgGfp5jHW87mI-QgqJGAx7B0FG9YmfZLYy1svEGlzNl8Wke4av2GiAnKeKeE1CGcEd1Nklm19Z7ne4";
 
 const USDC_DEVNET_MINT_ADDRESS = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"; 
 
