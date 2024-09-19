@@ -29,6 +29,7 @@ function App() {
   const [usdcBalance, setUsdcBalance] = useState(0);
   const [showWormhole, setShowWormhole] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [phantomInstalled, setPhantomInstalled] = useState(true);
 
   const connection = new Connection("https://api.devnet.solana.com");
   const solanaAdapter = new PhantomAdapter({
@@ -47,6 +48,11 @@ function App() {
 
   useEffect(() => {
     const initWeb3Auth = async () => {
+      if (!window.solana || !window.solana.isPhantom) {
+        setPhantomInstalled(false);
+        return;
+      }
+  
       try {
         const chainConfig = {
           chainNamespace: CHAIN_NAMESPACES.SOLANA,
@@ -65,11 +71,11 @@ function App() {
           web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
           privateKeyProvider: privateKeyProvider,
         });
-
+  
         web3authInstance.configureAdapter(solanaAdapter);
         await solanaAdapter.init();
         setWeb3auth(web3authInstance);
-
+  
         const provider = await solanaAdapter.connect();
         let typedProvider: IProvider | undefined;
         if (provider) {
@@ -78,18 +84,18 @@ function App() {
           console.error('Failed to connect. Provider is null.');
           return;
         }
-
+  
         const solanaProvider = new SolanaWallet(typedProvider);
         const userAddress = await solanaProvider.requestAccounts();
         const userPublicKey = new PublicKey(userAddress[0]);
         setWalletAddress(userAddress[0]);
-
+  
         const solBalance = await connection.getBalance(userPublicKey);
         setSolBalance(solBalance / 1e9);
-
+  
         const usdcMint = new PublicKey(USDC_DEVNET_MINT_ADDRESS);
         const usdcTokenAddress = await getAssociatedTokenAddress(usdcMint, userPublicKey);
-
+  
         try {
           const usdcAccount = await getAccount(connection, usdcTokenAddress);
           setUsdcBalance(Number(usdcAccount.amount) / 1e6);
@@ -97,14 +103,14 @@ function App() {
           console.log("User does not have a USDC account on Devnet.");
           setUsdcBalance(0);
         }
-
       } catch (error) {
         console.error("Error initializing Web3Auth:", error);
       }
     };
-
+  
     initWeb3Auth();
   }, []);
+  
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(walletAddress);
@@ -146,7 +152,7 @@ function App() {
             )}
           </>
         ) : (
-          <p>Loading...</p>
+          <p>{phantomInstalled ? 'Loading...' : 'ERROR: Phantom wallet not installed'}</p>
         )}
       </div>
     </div>
