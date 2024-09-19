@@ -5,6 +5,7 @@ import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { SolanaWallet, SolanaPrivateKeyProvider } from "@web3auth/solana-provider";
 import WormholeConnect, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 import { Connection, PublicKey } from "@solana/web3.js";
+import { PhantomAdapter } from "@web3auth/phantom-adapter";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 const clientId = "BGdt3Ny7JC8-pWutbt9c-FD9XeLhi3tcEaQ2T5BFm6stueZ0BhhWI3GsiqbsIj7xuI4xuoJN6DOzgHUYiolh8Ss";
@@ -30,6 +31,19 @@ function App() {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const connection = new Connection("https://api.devnet.solana.com");
+  const solanaAdapter = new PhantomAdapter({
+    clientId,
+    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+    chainConfig: {
+      chainNamespace: CHAIN_NAMESPACES.SOLANA,
+          chainId: "0x3",
+          rpcTarget: "https://api.devnet.solana.com",
+          displayName: "Solana Devnet",
+          blockExplorerUrl: "https://explorer.solana.com",
+          ticker: "SOL",
+          tickerName: "Solana",
+    },
+  });
 
   useEffect(() => {
     const initWeb3Auth = async () => {
@@ -42,7 +56,6 @@ function App() {
           blockExplorerUrl: "https://explorer.solana.com",
           ticker: "SOL",
           tickerName: "Solana",
-          logo: "https://images.toruswallet.io/solana.svg",
         };
         const privateKeyProvider = new SolanaPrivateKeyProvider({
           config: { chainConfig: chainConfig },
@@ -53,10 +66,11 @@ function App() {
           privateKeyProvider: privateKeyProvider,
         });
 
-        await web3authInstance.initModal();
+        web3authInstance.configureAdapter(solanaAdapter);
+        await solanaAdapter.init();
         setWeb3auth(web3authInstance);
 
-        const provider = await web3authInstance.connect();
+        const provider = await solanaAdapter.connect();
         let typedProvider: IProvider | undefined;
         if (provider) {
           typedProvider = provider;
