@@ -5,6 +5,8 @@ import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { SolanaWallet, SolanaPrivateKeyProvider } from "@web3auth/solana-provider";
 import WormholeConnect, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 import { Connection, PublicKey } from "@solana/web3.js";
+import { PhantomAdapter } from "@web3auth/phantom-adapter";
+import { SolanaWalletAdapter } from "@web3auth/torus-solana-adapter";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 const clientId = "BKCkDLnIVQf1_q2VzT4Hz2B5g7HJOLoJ0Eb2HdawWci2dA3F5bhHyow6_tS7gFLq-LqAtfGW9lZj0FApTyZF5Uc";
@@ -28,69 +30,153 @@ function App() {
   const [usdcBalance, setUsdcBalance] = useState(0);
   const [showWormhole, setShowWormhole] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [phantomInstalled, setPhantomInstalled] = useState(true);
+  const [walletSelected, setWalletSelected] = useState(false);
+
+  if (!window.solana || !window.solana.isPhantom) {
+    setPhantomInstalled(false);
+  }
 
   const connection = new Connection("https://api.devnet.solana.com");
-
-  useEffect(() => {
-    const initWeb3Auth = async () => {
-      try {
-        const chainConfig = {
-          chainNamespace: CHAIN_NAMESPACES.SOLANA,
+  const phantomAdapter = new PhantomAdapter({
+    clientId,
+    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+    chainConfig: {
+      chainNamespace: CHAIN_NAMESPACES.SOLANA,
           chainId: "0x3",
           rpcTarget: "https://api.devnet.solana.com",
           displayName: "Solana Devnet",
           blockExplorerUrl: "https://explorer.solana.com",
           ticker: "SOL",
           tickerName: "Solana",
-          logo: "https://images.toruswallet.io/solana.svg",
-        };
-        const privateKeyProvider = new SolanaPrivateKeyProvider({
-          config: { chainConfig: chainConfig },
-        });
-        const web3authInstance = new Web3Auth({
-          clientId,
-          web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-          privateKeyProvider: privateKeyProvider,
-        });
+    },
+  });
+  const torusAdapter = new SolanaWalletAdapter({
+    clientId,
+    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+    chainConfig: {
+      chainNamespace: CHAIN_NAMESPACES.SOLANA,
+          chainId: "0x3",
+          rpcTarget: "https://api.devnet.solana.com",
+          displayName: "Solana Devnet",
+          blockExplorerUrl: "https://explorer.solana.com",
+          ticker: "SOL",
+          tickerName: "Solana",
+    },
+  });
 
-        await web3authInstance.initModal();
-        setWeb3auth(web3authInstance);
+  async function initWeb3AuthPhantom()  {
+    try {
+      const chainConfig = {
+        chainNamespace: CHAIN_NAMESPACES.SOLANA,
+        chainId: "0x3",
+        rpcTarget: "https://api.devnet.solana.com",
+        displayName: "Solana Devnet",
+        blockExplorerUrl: "https://explorer.solana.com",
+        ticker: "SOL",
+        tickerName: "Solana",
+      };
+      const privateKeyProvider = new SolanaPrivateKeyProvider({
+        config: { chainConfig: chainConfig },
+      });
+      const web3authInstance = new Web3Auth({
+        clientId,
+        web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+        privateKeyProvider: privateKeyProvider,
+      });
 
-        const provider = await web3authInstance.connect();
-        let typedProvider: IProvider | undefined;
-        if (provider) {
-          typedProvider = provider;
-        } else {
-          console.error('Failed to connect. Provider is null.');
-          return;
-        }
+      web3authInstance.configureAdapter(phantomAdapter);
+      await phantomAdapter.init();
+      setWeb3auth(web3authInstance);
 
-        const solanaProvider = new SolanaWallet(typedProvider);
-        const userAddress = await solanaProvider.requestAccounts();
-        const userPublicKey = new PublicKey(userAddress[0]);
-        setWalletAddress(userAddress[0]);
-
-        const solBalance = await connection.getBalance(userPublicKey);
-        setSolBalance(solBalance / 1e9);
-
-        const usdcMint = new PublicKey(USDC_DEVNET_MINT_ADDRESS);
-        const usdcTokenAddress = await getAssociatedTokenAddress(usdcMint, userPublicKey);
-
-        try {
-          const usdcAccount = await getAccount(connection, usdcTokenAddress);
-          setUsdcBalance(Number(usdcAccount.amount) / 1e6);
-        } catch (error) {
-          console.log("User does not have a USDC account on Devnet.");
-          setUsdcBalance(0);
-        }
-
-      } catch (error) {
-        console.error("Error initializing Web3Auth:", error);
+      const provider = await phantomAdapter.connect();
+      let typedProvider: IProvider | undefined;
+      if (provider) {
+        typedProvider = provider;
+      } else {
+        console.error('Failed to connect. Provider is null.');
+        return;
       }
-    };
 
-    initWeb3Auth();
-  }, []);
+      const solanaProvider = new SolanaWallet(typedProvider);
+      const userAddress = await solanaProvider.requestAccounts();
+      const userPublicKey = new PublicKey(userAddress[0]);
+      setWalletAddress(userAddress[0]);
+
+      const solBalance = await connection.getBalance(userPublicKey);
+      setSolBalance(solBalance / 1e9);
+
+      const usdcMint = new PublicKey(USDC_DEVNET_MINT_ADDRESS);
+      const usdcTokenAddress = await getAssociatedTokenAddress(usdcMint, userPublicKey);
+
+      try {
+        const usdcAccount = await getAccount(connection, usdcTokenAddress);
+        setUsdcBalance(Number(usdcAccount.amount) / 1e6);
+      } catch (error) {
+        console.log("User does not have a USDC account on Devnet.");
+        setUsdcBalance(0);
+      }
+    } catch (error) {
+      console.error("Error initializing Web3Auth:", error);
+    }
+  };
+
+  async function initWeb3AuthTorus()  {
+    try {
+      const chainConfig = {
+        chainNamespace: CHAIN_NAMESPACES.SOLANA,
+        chainId: "0x3",
+        rpcTarget: "https://api.devnet.solana.com",
+        displayName: "Solana Devnet",
+        blockExplorerUrl: "https://explorer.solana.com",
+        ticker: "SOL",
+        tickerName: "Solana",
+      };
+      const privateKeyProvider = new SolanaPrivateKeyProvider({
+        config: { chainConfig: chainConfig },
+      });
+      const web3authInstance = new Web3Auth({
+        clientId,
+        web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+        privateKeyProvider: privateKeyProvider,
+      });
+
+      web3authInstance.configureAdapter(torusAdapter);
+      await torusAdapter.init();
+      setWeb3auth(web3authInstance);
+
+      const provider = await torusAdapter.connect();
+      let typedProvider: IProvider | undefined;
+      if (provider) {
+        typedProvider = provider;
+      } else {
+        console.error('Failed to connect. Provider is null.');
+        return;
+      }
+
+      const solanaProvider = new SolanaWallet(typedProvider);
+      const userAddress = await solanaProvider.requestAccounts();
+      const userPublicKey = new PublicKey(userAddress[0]);
+      setWalletAddress(userAddress[0]);
+
+      const solBalance = await connection.getBalance(userPublicKey);
+      setSolBalance(solBalance / 1e9);
+
+      const usdcMint = new PublicKey(USDC_DEVNET_MINT_ADDRESS);
+      const usdcTokenAddress = await getAssociatedTokenAddress(usdcMint, userPublicKey);
+
+      try {
+        const usdcAccount = await getAccount(connection, usdcTokenAddress);
+        setUsdcBalance(Number(usdcAccount.amount) / 1e6);
+      } catch (error) {
+        console.log("User does not have a USDC account on Devnet.");
+        setUsdcBalance(0);
+      }
+    } catch (error) {
+      console.error("Error initializing Web3Auth:", error);
+    }
+  };
+  
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(walletAddress);
@@ -102,11 +188,40 @@ function App() {
     return address.slice(0, 4) + '...' + address.slice(-4);
   };
 
+  const handlePhantomSelection = async () => {
+    setWalletSelected(true);
+    await initWeb3AuthPhantom();
+  };
+
+  const handleTorusSelection = async () => {
+    setWalletSelected(true);
+    await initWeb3AuthTorus();
+  };
+
   return (
     <div className="container">
       <header className="header">
-        <h1>Wormhole PoC</h1>
+        <h1>Wormhole bridge PoC</h1>
       </header>
+      
+      {!walletSelected && (
+        <div className="wallet-choice">
+          <button 
+            className={`wallet-button ${phantomInstalled ? '' : 'disabled'}`}
+            onClick={phantomInstalled ? handlePhantomSelection : undefined}
+            disabled={!phantomInstalled}
+          >
+            Connect Phantom Wallet
+          </button>
+          <button 
+            className="wallet-button"
+            onClick={handleTorusSelection}
+          >
+            Connect Torus Wallet
+          </button>
+        </div>
+      )}
+      
       <div className="content">
         {walletAddress ? (
           <>
@@ -132,7 +247,7 @@ function App() {
             )}
           </>
         ) : (
-          <p>Loading...</p>
+          <p>{phantomInstalled ? 'Please select a wallet to proceed.' : 'Phantom wallet not installed. Choose Torus.'}</p>
         )}
       </div>
     </div>
