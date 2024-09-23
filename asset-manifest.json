@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/Wormhole-PoC/static/css/main.15c13fd9.css",
-    "main.js": "/Wormhole-PoC/static/js/main.cb220a5f.js",
+    "main.css": "/Wormhole-PoC/static/css/main.140504fc.css",
+    "main.js": "/Wormhole-PoC/static/js/main.d55dbd66.js",
     "static/js/9075.34c9720f.chunk.js": "/Wormhole-PoC/static/js/9075.34c9720f.chunk.js",
     "static/js/7626.7c906351.chunk.js": "/Wormhole-PoC/static/js/7626.7c906351.chunk.js",
     "static/js/47.7cc61035.chunk.js": "/Wormhole-PoC/static/js/47.7cc61035.chunk.js",
@@ -53,8 +53,8 @@
     "static/js/4009.0b6dcb49.chunk.js": "/Wormhole-PoC/static/js/4009.0b6dcb49.chunk.js",
     "static/js/4207.3973b2f5.chunk.js": "/Wormhole-PoC/static/js/4207.3973b2f5.chunk.js",
     "index.html": "/Wormhole-PoC/index.html",
-    "main.15c13fd9.css.map": "/Wormhole-PoC/static/css/main.15c13fd9.css.map",
-    "main.cb220a5f.js.map": "/Wormhole-PoC/static/js/main.cb220a5f.js.map",
+    "main.140504fc.css.map": "/Wormhole-PoC/static/css/main.140504fc.css.map",
+    "main.d55dbd66.js.map": "/Wormhole-PoC/static/js/main.d55dbd66.js.map",
     "4606.e1f3ae87.chunk.js.map": "/Wormhole-PoC/static/js/4606.e1f3ae87.chunk.js.map",
     "6905.0275282e.chunk.js.map": "/Wormhole-PoC/static/js/6905.0275282e.chunk.js.map",
     "9804.98ab9a19.chunk.js.map": "/Wormhole-PoC/static/js/9804.98ab9a19.chunk.js.map",
@@ -98,7 +98,7 @@
     "4207.3973b2f5.chunk.js.map": "/Wormhole-PoC/static/js/4207.3973b2f5.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.15c13fd9.css",
-    "static/js/main.cb220a5f.js"
+    "static/css/main.140504fc.css",
+    "static/js/main.d55dbd66.js"
   ]
 }
